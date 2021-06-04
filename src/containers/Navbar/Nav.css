@@ -4,3 +4,6 @@ a {
     background-color: transparent;
 }
 
+.bg-dark {
+    background-color: black !important;
+}
