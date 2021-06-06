@@ -7,6 +7,7 @@ import 'antd/dist/antd.css';
 import { Alert } from 'antd';
 
 import  { ModalProvider } from "styled-react-modal";
+import QuestionForm from "./components/QuestionForm/index";
 
 function App() {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -42,6 +43,7 @@ function App() {
     <ModalProvider backgroundComponent={FadingBackground}>
       <Navbar />
       <AddButtonField onClick={toggleModal}>Add Question</AddButtonField>
+      <hr/>
       { success && <Alert
       message="Question Added"
       type="success"
@@ -57,6 +59,7 @@ function App() {
           backgroundProps={{ opacity }}
           handleQuestionAdded = {handleQuestionAdded}>
       </Modal>
+      <QuestionForm />
       </ModalProvider>
     </>
   );
