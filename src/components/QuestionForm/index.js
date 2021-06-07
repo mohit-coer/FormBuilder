@@ -1,39 +1,135 @@
 import React from "react";
-import {Container} from "./question.css";
+import {Container, SubmitButton} from "./question.css";
 import {connect} from "react-redux";
 import { UITYPE } from "../../common/uitype";
-import { Input } from "../Modal/model.css"
-
-const QuestionForm =(props) => {    
+import { Input } from "../Modal/model.css";
+import { saveQues } from "../../redux/saveanswer/actionTypes";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+const QuestionForm =(props) => {
+    const [submit, setSubmit] = React.useState([]);
     return (
-        <Container>
-            <h1>Question Form</h1>
+        <>
+        <ToastContainer />
             {props.questions.length > 0 && 
-                props.questions.map((ele,index)=>{
-                   if(ele.uitype === UITYPE.TEXT)
-                   {
-                       return <>
-                            <h4>{index + 1} . {ele.question}</h4>
-                            <Input type="text" id={'element'+index} />
-                       </>
-                   }
-                   if(ele.uitype === UITYPE.RADIO)
-                   {
-                       return <>
-                            <h4 className="mt-2">{index + 1} . {ele.question}</h4>
-                            <div className="form-check">
-                                <input className="form-check-input" type="radio" 
-                                name="exampleRadios" 
-                                id={"element"+index} value="option1" checked />
-                                <label className="form-check-label" htmlFor={"element"+index}>
-                                    Default radio
-                                </label>
-                            </div>
-                       </>
-                   }
-                })
+                <>
+                <Container>
+                    <h1>Question Form</h1>
+                        {props.questions.map((ele,index) => {
+                            if(ele.uitype === UITYPE.TEXT)
+                            {
+                                return <div key={index}>
+                                        <h4>{index + 1} . {ele.question}</h4>
+                                        <Input type="text" id={'element'+index} 
+                                        onChange={(e)=>{
+                                            let res = submit;
+                                        let flag = false;
+                                        res.map(s => {
+                                            if(s.question === ele.question)
+                                            {
+                                                s.answer = e.target.value;                                                                                  
+                                                flag = true;
+                                            }
+                                        })
+                                        flag ? setSubmit(res) : setSubmit((prevState)=>[...prevState, {
+                                            question: ele.question,
+                                            answer: e.target.value,
+                                        }]);
+                                        
+                                        }}/>
+                                </div>
+                            }
+                            if(ele.uitype === UITYPE.RADIO)
+                            {
+                                return <div key={index} onChange={(e)=>{
+                                    let res = submit;
+                                    let flag = false;
+                                    res.map(s => {
+                                        if(s.question === ele.question)
+                                        {
+                                            s.answer = e.target.value;                                                                                  
+                                            flag = true;
+                                        }
+                                    })
+                                    flag ? setSubmit(res) : setSubmit((prevState)=>[...prevState, {
+                                        question: ele.question,
+                                        answer: e.target.value,
+                                    }]);
+                                }}>
+                                        <h4 className="mt-2">{index + 1} . {ele.question}</h4>
+                                        { 
+                                            ele.options.split("\n").map((option)=>{
+                                                return <div className="form-check">
+                                                    <input className="form-check-input" type="radio" 
+                                                    name={"element"+index} 
+                                                    id={"element"+index} value={option} />
+                                                    <label className="form-check-label" htmlFor={"element"+index}>
+                                                        {option}
+                                                    </label>
+                                                </div>
+                                            })
+                                        }                           
+                                </div>
+                            }
+                            if(ele.uitype === UITYPE.CHK)
+                            {
+                                return <div key={index} onChange={(e)=>{
+                                        let res = submit;
+                                        let flag = false;
+                                        res.map(s => {
+                                            if(s.question === ele.question)
+                                            {
+                                                if(e.target.checked)
+                                                {
+                                                    s.answer = s.answer + ", " + e.target.value;
+                                                }
+                                                else
+                                                {
+                                                    let answers = s.answer.split(", ");
+                                                    let answers_ = [];
+                                                    answers.map((ele,n_) => {
+                                                        if(ele !== e.target.value)
+                                                        {
+                                                            answers_.push(answers[n_]);
+                                                        }
+                                                    });
+                                                    let new_ = "";
+                                                    answers_.map(ele => {
+                                                        new_ = new_ === "" ? ele !== "" && (new_ + ele) : (new_ + ", " + ele);
+                                                    })
+                                                    s.answer = new_;
+                                                }                                               
+                                                flag = true;
+                                            }
+                                        })
+                                        flag ? setSubmit(res) : setSubmit((prevState)=>[...prevState, {
+                                            question: ele.question,
+                                            answer: e.target.value,
+                                        }]);
+                                        
+                                    }}>
+                                        <h4 className="mt-2">{index + 1} . {ele.question}</h4>
+                                        { 
+                                            ele.options.split("\n").map((option)=>{
+                                                return <div className="form-check">
+                                                <input className="form-check-input" type="checkbox" 
+                                                value={option} id={"element"+index} />
+                                                <label className="form-check-label" htmlFor={"element"+index}>
+                                                    {option}
+                                                </label>
+                                            </div>
+                                            })
+                                        }                           
+                                </div>
+                            }
+                        })}
+                    <SubmitButton onClick={(e)=>{   
+                        submit.length > 0 ? props.saveQues(submit) : toast.error("Feilds cannot be empty, Even if you are heavy driver");
+                    }}>Save</SubmitButton>
+                </Container>
+                </>
             }
-        </Container>       
+        </>
     )
 }
 
@@ -43,4 +139,12 @@ const mapStateToProps = (state) => {
       };
 }
 
-export default connect(mapStateToProps, null)(QuestionForm);
+const mapDispatchToProps = (dispatch, ownProps) => {
+    return {
+        saveQues: (data) => {
+            dispatch(saveQues(data))
+        }
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(QuestionForm);

@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import {StyledModal, ModalFooter, ModalHeader, 
-    ModalContent, Button, Cancel, Row, Column, TextArea, Select, Option, Input} from "./model.css";
+    ModalContent, Button, Cancel, Row, Column, TextArea, Select, Option} from "./model.css";
 import { UITYPE } from "../../common/uitype";
 import {connect} from "react-redux";
-import addQuestion from "../../redux/questions/reducer";
 import { addQues } from "../../redux/questions/actiontypes";
 const Modal = (props) => 
 {
@@ -14,6 +13,7 @@ const Modal = (props) =>
         label: "",
         options: ""
     })
+    const [nonEmpty, setNonEmpty] = useState(false);
 
     return (
         <StyledModal
@@ -90,6 +90,7 @@ const Modal = (props) =>
                              </>}
                     </Column>                
                 </Row>}
+                {nonEmpty ? <h3 style={{color: "red", marginTop: "20px"}}>Kindly fill all details!!</h3> : null}
             </ModalContent>
         <ModalFooter>
             <Row>
@@ -98,12 +99,27 @@ const Modal = (props) =>
             </Column>
             <Column mt={1}>
                 <Button onClick={()=>{
-                    props.addQuestion([...props.questions,{
-                        question: questions.question,
-                        uitype: questions.uitype,
-                        label: questions.label,
-                        options: questions.options
-                    }]);
+                    if(questions.question!== "" && 
+                        questions.uitype!== "")
+                        {
+                            props.addQuestion([...props.questions,{
+                                question: questions.question,
+                                uitype: questions.uitype,
+                                label: questions.label,
+                                options: questions.options
+                            }]);
+                            toggleModal();
+                            handleQuestionAdded();
+                            setNonEmpty(false);
+                            setQuestions({question: "",
+                                uitype: "",
+                                label: "",
+                                options: ""});
+                        }
+                        else
+                        {
+                            setNonEmpty(true);
+                        }
                 }}>
                     Add
                 </Button>
