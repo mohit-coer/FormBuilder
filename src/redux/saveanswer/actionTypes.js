@@ -24,7 +24,7 @@ export const saveRequest = () => {
     };
   };
   
-  export const saveQues = (questions) => {
+  export const saveQues = (questions, ownProps) => {
     debugger;
     return (dispatch) => {
       const data = {
@@ -36,13 +36,15 @@ export const saveRequest = () => {
       };
       dispatch(saveRequest());
       axios
-        .post("http://localhost:8081/api/questions/add", data, {
+        .post(`${process.env.REACT_APP_URL}questions/add`, data, {
           headers: headers,
         })
         .then((response) => {
-          const users = response.data;
-          dispatch(saveSuccess(users));
+          const forms = response.data;
+          dispatch(saveSuccess(forms));
           toast.dark("Saved in Database, Waah bete mauj kardi");
+          debugger;
+          ownProps.history.push("/formlist");
         })
         .catch((error) => {
           const errorMsg = error.message;
