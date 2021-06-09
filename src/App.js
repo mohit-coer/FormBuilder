@@ -1,65 +1,27 @@
 import './App.css';
-import {AddButtonField, FadingBackground} from './App.style';
+import { FadingBackground} from './App.style';
 import Navbar from "./containers/Navbar/NavbarComponent";
-import Modal from "./components/Modal/index.js";
 import React from "react";
 import 'antd/dist/antd.css';
-import { Alert } from 'antd';
-
 import  { ModalProvider } from "styled-react-modal";
-import QuestionForm from "./components/QuestionForm/index";
-
+import {
+  Switch,
+  Route
+} from "react-router-dom";
+import RootComponent from "./components/Rootcomponent/index";
+import QuestionFormListing from "./components/QuestionFormListing/index";
+import FormFilling from "./components/FormFilling/index";
 function App() {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [opacity, setOpacity] = React.useState(0);
-  const [success, setSuccess] = React.useState(false);
-  const toggleModal = (e) => {
-    setOpacity(0);
-    setIsOpen(!isOpen);
-  }
-
-  const afterOpen = (e) => {
-    setTimeout(() => {
-      setOpacity(1);
-    }, 100);
-  }
-
-  const beforeClose = () => {
-    return new Promise((resolve) => {
-      setOpacity(0);
-      setTimeout(resolve, 300);
-    });
-  }
-
-  const handleQuestionAdded = () => {
-     setSuccess(true);
-     setTimeout(()=>{
-       setSuccess(false)
-     },2000);
-  }
 
   return (
     <>
-    <ModalProvider backgroundComponent={FadingBackground}>
-      <Navbar />
-      <AddButtonField onClick={toggleModal}>Add Question</AddButtonField>
-      <hr/>
-      { success && <Alert
-      message="Question Added"
-      type="success"
-      style={{padding: "24px", width:"95%", marginLeft: "10px"}}
-      closable />
-      }
-      <Modal 
-          isOpen={isOpen}
-          afterOpen={afterOpen}
-          beforeClose={beforeClose}
-          toggleModal={toggleModal}
-          opacity={opacity}
-          backgroundProps={{ opacity }}
-          handleQuestionAdded = {handleQuestionAdded}>
-      </Modal>
-      <QuestionForm />
+      <ModalProvider backgroundComponent={FadingBackground}>
+        <Navbar />
+        <Switch>
+            <Route path="/" exact={true} component={RootComponent} />
+            <Route path="/formlist" exact={true} component={QuestionFormListing} />
+            <Route path="/formlist/:id" exact={true} component={FormFilling} />
+        </Switch>
       </ModalProvider>
     </>
   );

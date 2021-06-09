@@ -8,13 +8,18 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 const QuestionForm =(props) => {
     const [submit, setSubmit] = React.useState([]);
+    const [name, setName] = React.useState('');
     return (
         <>
         <ToastContainer />
+        <Container>
+                    <h1>Question Form</h1>
+            <h4>Name of the form</h4>
+            <Input type="text" id="formname" className="mb-4" onChange={(e)=>{
+                setName(e.target.value);
+            }} />
             {props.questions.length > 0 && 
                 <>
-                <Container>
-                    <h1>Question Form</h1>
                         {props.questions.map((ele,index) => {
                             if(ele.uitype === UITYPE.TEXT)
                             {
@@ -124,11 +129,15 @@ const QuestionForm =(props) => {
                             }
                         })}
                     <SubmitButton onClick={(e)=>{   
-                        submit.length > 0 ? props.saveQues(submit) : toast.error("Feilds cannot be empty, Even if you are heavy driver");
-                    }}>Save</SubmitButton>
-                </Container>
+                        props.saveQues({
+                            questions: props.questions,
+                            responses: [],
+                            formname: name
+                        });
+                    }}>Add Form</SubmitButton>                
                 </>
             }
+            </Container>
         </>
     )
 }
@@ -142,7 +151,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch, ownProps) => {
     return {
         saveQues: (data) => {
-            dispatch(saveQues(data))
+            dispatch(saveQues(data, ownProps));
         }
     }
 }
